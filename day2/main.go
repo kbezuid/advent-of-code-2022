@@ -10,13 +10,17 @@ import (
 )
 
 func main() {
-	game := game.NewGame()
+	os.Exit(run())
+}
+
+func run() int {
+	g := game.NewGame()
 
 	file, err := os.Open("input.txt")
 
 	if err != nil {
 		log.Fatalf("Open file error : %v", err)
-		os.Exit(1)
+		return 1
 	}
 
 	defer file.Close()
@@ -25,12 +29,12 @@ func main() {
 
 	for scanner.Scan() {
 		line := scanner.Text()
-
-		game.PlayRound(line[0], line[2])
-
+		g.PlayRoundWithOutcome(line[0], line[2])
 	}
 
 	fmt.Println("---------------")
-	fmt.Printf("Total Score %d\n", game.TotalScore)
+	fmt.Printf("Total Score %d\n", g.TotalScore)
 	fmt.Println("---------------")
+
+	return 0
 }
