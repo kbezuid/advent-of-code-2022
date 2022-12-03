@@ -11,6 +11,12 @@ const respP = 'Y'
 const respS = 'Z'
 
 const (
+	LoseOutcome = 'X'
+	DrawOutcome = 'Y'
+	WinOutcome  = 'Z'
+)
+
+const (
 	Rock     = 1
 	Paper    = 2
 	Scissors = 3
@@ -29,6 +35,49 @@ type Game struct {
 type play struct {
 	score  int
 	option int
+}
+
+func newDrawMap() map[byte]byte {
+	var m = make(map[byte]byte)
+
+	m[oppoR] = respR
+	m[oppoP] = respP
+	m[oppoS] = respS
+
+	return m
+}
+
+func newWinMap() map[byte]byte {
+	var m = make(map[byte]byte)
+
+	m[oppoR] = respP
+	m[oppoP] = respS
+	m[oppoS] = respR
+
+	return m
+}
+
+func newLoseMap() map[byte]byte {
+	var m = make(map[byte]byte)
+
+	m[oppoR] = respS
+	m[oppoP] = respR
+	m[oppoS] = respP
+
+	return m
+}
+
+func getInputMap(outcome byte) map[byte]byte {
+	switch outcome {
+	case DrawOutcome:
+		return newDrawMap()
+	case WinOutcome:
+		return newWinMap()
+	case LoseOutcome:
+		return newLoseMap()
+	default:
+		panic("Should not get here")
+	}
 }
 
 func newRock() play {
@@ -83,6 +132,11 @@ func getResponsePlay(response byte) play {
 	}
 
 	panic("Should not get here")
+}
+
+func (g *Game) PlayRoundWithOutcome(opponent byte, outcome byte) {
+	responseMap := getInputMap(outcome)
+	g.PlayRound(opponent, responseMap[opponent])
 }
 
 func (g *Game) PlayRound(opponent byte, response byte) {
