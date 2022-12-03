@@ -3,31 +3,44 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"github.com/kbezuid/day3/rugsack"
+	"github.com/kbezuid/day3/group"
 	"os"
 )
 
 func main() {
 	file, _ := os.Open("input.txt")
 	defer file.Close()
-	totalPriorities := 0
 
+	totalPriorities := 0
 	scanner := bufio.NewScanner(file)
+	lineCount := 0
+
+	var g group.Group
 
 	for scanner.Scan() {
 		line := scanner.Text()
-		totalItems := len(line)
 
-		compartmentA := line[0 : totalItems/2]
-		compartmentB := line[totalItems/2 : totalItems]
+		if lineCount == 0 {
+			g = group.New(line)
+		}
 
-		r := rugsack.New(compartmentA)
-		r.SetDuplicates(compartmentB)
+		if lineCount == 1 {
+			g.AddRugsackB(line)
+		}
 
-		currentTotalPriority := r.GetTotalDuplicatePriority()
-		totalPriorities += currentTotalPriority
+		if lineCount == 2 {
+			g.AddRugsackC(line)
+			currentTotalPriority := g.GetTotalPriority()
+			totalPriorities += currentTotalPriority
 
-		fmt.Printf("Duplicates: %s\tBag Priority: %d\tTotal Priority: %d\n", r.Duplicates, currentTotalPriority, totalPriorities)
+			fmt.Printf("Badges: %s\tBadges Priority: %d\tTotal Priority: %d\n", g.Badges, currentTotalPriority, totalPriorities)
+		}
+
+		lineCount++
+
+		if lineCount == 3 {
+			lineCount = 0
+		}
 	}
 
 	fmt.Println("---------------")
