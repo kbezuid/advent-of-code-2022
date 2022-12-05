@@ -8,6 +8,7 @@ import (
 	"strings"
 )
 
+// TODO: Maybe redo this challenge with just an array of strings this seems way to inefficient
 const emptySlot = "   "
 
 func main() {
@@ -43,20 +44,19 @@ func main() {
 			from--
 			to--
 
-			fmt.Printf("%d: %d -> %d\n", count, from, to)
+			fmt.Printf("%d: %d -> %d\n\n", count, from, to)
 
-			for i := 0; i < count; i++ {
-				if len(columns[from]) > 0 {
-					item := columns[from][0]
+			if len(columns[from]) >= count {
+				items := make([]string, 0)
+				items = append(items, columns[from][0:count]...)
 
-					if len(columns[from]) > 1 {
-						columns[from] = columns[from][1:]
-					} else {
-						columns[from] = []string{}
-					}
-
-					columns[to] = append([]string{item}, columns[to]...)
+				if len(columns[from]) == count {
+					columns[from] = []string{}
+				} else {
+					columns[from] = columns[from][count:]
 				}
+
+				columns[to] = append(items, columns[to]...)
 			}
 
 		} else {
