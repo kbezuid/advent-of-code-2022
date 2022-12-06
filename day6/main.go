@@ -16,10 +16,10 @@ func main() {
 		line := scanner.Text()
 
 		for i := 0; i < len(line); i++ {
-			buffer := line[i : i+4]
+			buffer := line[i : i+14]
 
 			if IsUnique(buffer) {
-				fmt.Printf("Packet Starts @ %d : %s\n", i+4, buffer)
+				fmt.Printf("Packet Starts @ %d : %s\n", i+14, buffer)
 				i = len(line)
 			}
 		}
