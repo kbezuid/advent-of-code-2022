@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"fmt"
+	"math"
 	"os"
 	"strconv"
 	"strings"
@@ -132,31 +133,58 @@ func main() {
 		currentDirSize = 0
 	}
 
-	//root.partA(100000)
-	//fmt.Println("----------------")
 	freeSpace := diskSize - root.getTotalDirSize()
 	neededSpace := spaceNeeded - freeSpace
-	root.partB(neededSpace)
+
+	channels := []chan int{make(chan int), make(chan int)}
+	done := []chan bool{make(chan bool), make(chan bool)}
+
+	go partA(100000, channels[0], done[0])
+	go partB(neededSpace, channels[1], done[1])
+
+	root.process(channels)
+
+	for _, c := range channels {
+		close(c)
+	}
+
+	<-done[0]
+	<-done[1]
+	fmt.Println("Done")
 }
 
-func (d *dir) partA(maxSize int) {
-	totalSize := d.getTotalDirSize()
-	if totalSize <= maxSize {
-		fmt.Printf("%d\n", totalSize)
+func (d *dir) process(channels []chan int) {
+	for _, c := range channels {
+		c <- d.getTotalDirSize()
 	}
 
-	for _, c := range d.children {
-		c.partA(maxSize)
+	for _, child := range d.children {
+		child.process(channels)
 	}
 }
 
-func (d *dir) partB(requiredSpace int) {
-	totalSize := d.getTotalDirSize()
-	if totalSize >= requiredSpace {
-		fmt.Printf("%d\n", totalSize)
+func partA(maxSize int, data <-chan int, done chan<- bool) {
+	totalSize := 0
+
+	for v := range data {
+		if v <= maxSize {
+			totalSize += v
+		}
 	}
 
-	for _, c := range d.children {
-		c.partB(requiredSpace)
+	fmt.Printf("Part A : %d\n", totalSize)
+	close(done)
+}
+
+func partB(requiredSpace int, data <-chan int, done chan<- bool) {
+	minSize := math.MaxInt
+
+	for v := range data {
+		if v >= requiredSpace && v < minSize {
+			minSize = v
+		}
 	}
+
+	fmt.Printf("Part B : %d\n", minSize)
+	close(done)
 }
