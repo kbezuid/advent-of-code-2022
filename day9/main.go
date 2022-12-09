@@ -26,8 +26,12 @@ func main() {
 		"D": {0, 1},
 	}
 
-	h := image.Point{0, 0}
-	t := image.Point{0, 0}
+	knots := make([]image.Point, 10)
+	tailIndex := len(knots) - 1
+
+	for i := range knots {
+		knots[i] = image.Point{0, 0}
+	}
 
 	for scanner.Scan() {
 		line := scanner.Text()
@@ -38,22 +42,35 @@ func main() {
 		count, _ := strconv.Atoi(parts[1])
 
 		for i := 0; i < count; i++ {
-			h = h.Add(dir)
-
-			diff := h.Sub(t)
-			dist := Abs(diff)
-
-			if dist > 1 {
-				unit := Unit(t, h)
-				t = t.Add(unit)
-				visited[t] = true
+			Move(&knots[0], dir)
+			for j := 0; j < len(knots)-1; j++ {
+				Update(&knots[j], &knots[j+1])
 			}
+			visited[knots[tailIndex]] = true
 		}
 
 	}
 
 	fmt.Printf("%d\n", len(visited))
 	fmt.Printf("Done")
+}
+
+func Move(p *image.Point, dir image.Point) {
+	r := p.Add(dir)
+	p.X = r.X
+	p.Y = r.Y
+}
+
+func Update(h *image.Point, t *image.Point) {
+	diff := h.Sub(*t)
+	dist := Abs(diff)
+
+	if dist > 1 {
+		unit := Unit(*t, *h)
+		newT := t.Add(unit)
+		t.X = newT.X
+		t.Y = newT.Y
+	}
 }
 
 func Abs(p image.Point) int {
