@@ -3,7 +3,6 @@ package main
 import (
 	"bufio"
 	"fmt"
-	"math"
 	"os"
 	"sort"
 	"strconv"
@@ -21,7 +20,9 @@ type Monkey struct {
 	worryLevel    int
 }
 
-const rounds = 20
+const rounds = 10000
+
+var bigLimit = 1
 
 func main() {
 	file, _ := os.Open("input.txt")
@@ -64,6 +65,7 @@ func main() {
 		if strings.HasPrefix(line, "  Test: ") {
 			test := strings.ReplaceAll(line, "  Test: divisible by ", "")
 			currentMonkey.setTest(test)
+			bigLimit *= currentMonkey.test
 		}
 
 		if strings.HasPrefix(line, "    If true:") {
@@ -79,6 +81,7 @@ func main() {
 
 	inspections := playRounds(rounds, monkeys)
 
+	fmt.Printf("Inspections %v\n", inspections)
 	sort.Ints(inspections)
 	monkeyBusiness := inspections[len(inspections)-1] * inspections[len(inspections)-2]
 
@@ -98,20 +101,20 @@ func playRounds(rounds int, monkeys map[int]*Monkey) []int {
 
 			for inspecting {
 				inspections[m] = inspections[m] + 1
-				wl := float64(monkeys[m].items[currentItem])
+				wl := monkeys[m].items[currentItem]
 
 				opParts := strings.Split(monkeys[m].operation, " ")
 
 				left := wl
 
 				if opParts[0] != "old" {
-					left, _ = strconv.ParseFloat(opParts[0], 64)
+					left, _ = strconv.Atoi(opParts[0])
 				}
 
 				right := wl
 
 				if opParts[2] != "old" {
-					right, _ = strconv.ParseFloat(opParts[2], 64)
+					right, _ = strconv.Atoi(opParts[2])
 				}
 
 				switch opParts[1] {
@@ -125,10 +128,9 @@ func playRounds(rounds int, monkeys map[int]*Monkey) []int {
 					wl = left / right
 				default:
 					fmt.Printf("Unknown operation %s\n", opParts[1])
-
 				}
 
-				worryLevel = int(math.Floor(wl / 3))
+				worryLevel = wl % bigLimit
 
 				next := monkeys[m].fail
 
